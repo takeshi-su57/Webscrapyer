@@ -32,17 +32,22 @@ def get_relavant_relation(html):
 	print "####\n"
 
 	### get the name of the relations
-	for i in relations:
-		for k in i.find_all("a")[1:]:
-			print k.get_text()
+	resultSet = {}
+	for e in relations:
+		resultSet[e.a.get_text()] = {}
+	for k in relations[0].find_all("a")[1:]:
+		print k.get_text().split()
+		print "http://www.whosdatedwho.com/dating/"+k.get_text().split()[0]+"-"+k.get_text().split()[1]
+	resultSet[e.a.get_text()]= [k.get_text()for k in relations[0].find_all("a")[1:]]
 
+	print resultSet
 
 	### output to json format
 		
 
 	# relation = []
 	# return relation
-get_relavant_relation("http://www.whosdatedwho.com/dating/gregg-sulkin")
+get_relavant_relation("http://www.whosdatedwho.com/dating/Britt-Robertson")
 
 # parse the relavent content
 # for i in range(0,2):
