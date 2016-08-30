@@ -26,13 +26,17 @@ def get_relationship(name):
 	r = requests.get(link)
 	soup = BeautifulSoup(r.text,"html.parser")
 	relations = soup.body.find("p",class_="ff-auto-relationships")
-	resultSet = []
+	resultSet = {}
 	print relations.prettify()
 	item = relations.find("a")
-	resultSet.append({"name":item.get_text(),"year": item.next_sibling.get_text()})
+	year = re.findall('\d+', (item.next_sibling.get_text()).encode('utf-8'))
+	ValueYear = tuple(map(lambda x : int(x),year))
+	resultSet[str(item.get_text())] =  ValueYear
 	while item.find_next_sibling("a") is not None :
 		item = item.find_next_sibling("a")
-		resultSet.append({"name":item.get_text(),"year": item.next_sibling.get_text()})
+		year = re.findall('\d+', (item.next_sibling.get_text()).encode('utf-8'))
+		ValueYear = tuple(map(lambda x : int(x),year))
+		resultSet[str(item.get_text())] = ValueYear
 	print resultSet	
 
 
@@ -54,8 +58,8 @@ def get_relationship(name):
 	return resultSet
 result = {}
 result["bella-thorne"] = get_relationship("bella-thorne")
+print "hello"
 # result["Britt-Robertson"] = temp
-
 # for i in temp:
 # 	print i 
 # 	result["Britt-Robertson"][str(i)] = get_relationship(i)
