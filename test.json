@@ -1,0 +1,11 @@
+{
+  "nodes": [
+    {"id": "bella-thorne", "group": 1},
+    {"id": "Cody Simpson", "group": 1},
+    {"id": "Jake T. Austin", "group": 1}
+  ],
+  "links": [
+    {"source": "Cody Simpson", "target": "bella-thorne", "value": 1},
+    {"source": "Jake T. Austin", "target": "bella-thorne", "value": 8}
+  ]
+}

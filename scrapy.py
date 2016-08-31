@@ -5,6 +5,9 @@ from pattern import web
 import pandas as pd
 from bs4 import BeautifulSoup 
 import networkx as nx
+import time
+
+DEBEG = 0
 # read the website
 defaultUrl = "http://www.whosdatedwho.com/dating/"
 sampleUrl = ["http://www.whosdatedwho.com/dating/gregg-sulkin","http://www.whosdatedwho.com/dating/bella-thorne"]
@@ -20,6 +23,38 @@ regex = '<a href="/dating/gregg-sulkin">Gregg Sulkin</a>'
 pattern = re.compile(regex)
 
 
+
+# scrapy the first 100 popular start on the list  http://www.whosdatedwho.com/popular
+
+def parse_name_inside_link(link):
+	return link.split("/")[-1]
+print parse_name_inside_link("http://www.whosdatedwho.com/dating/taylor-swift")
+
+def get_popular_celerbities(html):
+	link = html
+	r = requests.get(link)
+	soup = BeautifulSoup(r.text,"html.parser")
+	singlePerson = soup.body.find("div",class_="ff-box-grid ff-medium-square")
+	# print singlePerson.prettify()
+	returnList = []
+	for a in singlePerson.find_all('a', href=True):
+		returnList.append(parse_name_inside_link(a["href"]).encode("utf-8"))
+	return returnList	
+
+# returnlink = ["hello"]
+# returnlink+=get_100_popular_celerbities("http://www.whosdatedwho.com/popular?page=1")
+# print returnlink
+def get_100_popular_celebrities(html):
+	returnList = []
+	for i in range(1,10):
+		subfix = "?page="+str(i)
+		returnList+=get_popular_celerbities(html+subfix)
+	return returnList
+
+#input name of the person 
+
+#output object of the person' relationship
+
 # return list of relationship
 def get_relationship(name):
 	link = defaultUrl+name
@@ -27,7 +62,8 @@ def get_relationship(name):
 	soup = BeautifulSoup(r.text,"html.parser")
 	relations = soup.body.find("p",class_="ff-auto-relationships")
 	resultSet = {}
-	print relations.prettify()
+	if DEBEG ==1 :
+		print relations.prettify()
 	item = relations.find("a")
 	year = re.findall('\d+', (item.next_sibling.get_text()).encode('utf-8'))
 	ValueYear = tuple(map(lambda x : int(x),year))
@@ -37,7 +73,8 @@ def get_relationship(name):
 		year = re.findall('\d+', (item.next_sibling.get_text()).encode('utf-8'))
 		ValueYear = tuple(map(lambda x : int(x),year))
 		resultSet[str(item.get_text())] = ValueYear
-	print resultSet	
+	if DEBEG ==1 :
+		print resultSet	
 
 
 	# resultSet = []
@@ -56,14 +93,33 @@ def get_relationship(name):
 
 	# print resultSet
 	return resultSet
-result = {}
-result["bella-thorne"] = get_relationship("bella-thorne")
-print "hello"
+
+
+def get_100_popular_celebrities_relationship(html):
+	
+	returnList = get_100_popular_celebrities(html)
+	result = {}
+	# for name in returnList:
+	result[returnList[0]] = get_relationship(returnList[0])
+	return result
+	
+# output the dictionary of the person's relationship
+
+print get_100_popular_celebrities_relationship("http://www.whosdatedwho.com/popular")
+
+
+
+
+
+if DEBEG is 1:
+	result = {}
+	result["bella-thorne"] = get_relationship("bella-thorne")
+	print "hello"
 # result["Britt-Robertson"] = temp
 # for i in temp:
 # 	print i 
 # 	result["Britt-Robertson"][str(i)] = get_relationship(i)
-print result
+	print result
 def get_relavant_relation(html):
 	# dom = web.Element(html)
 	### 0. get the website
@@ -98,12 +154,8 @@ def get_relavant_relation(html):
 	# relation = []
 	# return relation
 
-print type(get_relavant_relation("http://www.whosdatedwho.com/dating/Britt-Robertson"))
-g = nx.Graph()
-g.add_node("spam")
-g.add_edge(1,2)
-print(list(g.nodes()))
-print(list(g.edges()))
+if DEBEG is 1:
+	print get_relavant_relation("http://www.whosdatedwho.com/dating/Britt-Robertson")
 
 
 #https://github.com/cs109/content/blob/master/HW5_solutions.ipynb
