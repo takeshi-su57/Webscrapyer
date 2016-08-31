@@ -5,7 +5,7 @@ from pattern import web
 import pandas as pd
 from bs4 import BeautifulSoup 
 import networkx as nx
-import time
+import timeit
 import sys
 NumErr = 0
 DEBEG = 0
@@ -62,8 +62,11 @@ def get_relationship(name):
 	global NumErr
 	link = defaultUrl+name
 	# try:
+	start_time = timeit.default_timer()
+
 	r = requests.get(link)
-	r.raise_for_status()
+	# r.raise_for_status() 
+	print "computation time is ",(timeit.default_timer() - start_time) ,"seconds process time"
 	if r.status_code == requests.codes.ok:
 		pass
 	else :
@@ -71,6 +74,10 @@ def get_relationship(name):
 	# 	NumErr+=1
 	# 	print "return none"
 		return None
+
+
+	start_time = timeit.default_timer()
+
 	soup = BeautifulSoup(r.text,"html.parser")
 	relations = soup.body.find("p",class_="ff-auto-relationships")
 	if relations is None :
@@ -79,29 +86,37 @@ def get_relationship(name):
 	resultSet = {}
 	if DEBEG ==1 :
 		print relations.prettify()
-
-	item = relations.find("a")
-	try:
+	######version2
+	for item in relations.find_all("a"):
 		relationName = parse_name_inside_link(item["href"]).encode("utf-8")
 		year = re.findall('\d+', (item.next_sibling.get_text()).encode('utf-8'))
 		ValueYear = tuple(map(lambda x : int(x),year))
-		resultSet[name] =  ValueYear
-	except AttributeError :
-		# print name
-		# return
-		resultSet[relationName] = None
+		resultSet[relationName] =  ValueYear
+	print "computation time is ",(timeit.default_timer() - start_time) ,"seconds process time"
+
+	######version1 
+	# item = relations.find("a")
+	# try:
+	# 	relationName = parse_name_inside_link(item["href"]).encode("utf-8")
+	# 	year = re.findall('\d+', (item.next_sibling.get_text()).encode('utf-8'))
+	# 	ValueYear = tuple(map(lambda x : int(x),year))
+	# 	resultSet[name] =  ValueYear
+	# except AttributeError :
+	# 	# print name
+	# 	# return
+	# 	resultSet[relationName] = None
 	
-	while item.find_next_sibling("a") is not None :
-		item = item.find_next_sibling("a")
-		try:
-			relationName = parse_name_inside_link(item["href"]).encode("utf-8")
-			year = re.findall('\d+', (item.next_sibling.get_text()).encode('utf-8'))
-		except AttributeError :
-			resultSet[relationName] = None
-			continue
+	# while item.find_next_sibling("a") is not None :
+	# 	item = item.find_next_sibling("a")
+	# 	try:
+	# 		relationName = parse_name_inside_link(item["href"]).encode("utf-8")
+	# 		year = re.findall('\d+', (item.next_sibling.get_text()).encode('utf-8'))
+	# 	except AttributeError :
+	# 		resultSet[relationName] = None
+	# 		continue
 		
-		ValueYear = tuple(map(lambda x : int(x),year))
-		resultSet[relationName] = ValueYear
+	# 	ValueYear = tuple(map(lambda x : int(x),year))
+	# 	resultSet[relationName] = ValueYear
 	if DEBEG ==1 :
 		print resultSet
 	return resultSet
@@ -141,7 +156,7 @@ def get_100_popular_celebrities_relationship(html):
 	return result
 	
 # output the dictionary of the person's relationship
-print get_relationship("bella-pendergast")
+print get_relationship("justin-bieber")
 # print get_100_popular_celebrities_relationship("http://www.whosdatedwho.com/popular")
 print NumErr
 # try:
