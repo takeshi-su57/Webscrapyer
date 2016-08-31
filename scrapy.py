@@ -8,6 +8,8 @@ import networkx as nx
 import timeit
 import sys
 import multiprocessing
+import threading
+import math
 
 NumErr = 0
 DEBEG = 0
@@ -164,29 +166,51 @@ def get_100_popular_celebrities_relationship(html):
 	print "computation time is ",(timeit.default_timer()-start_time) ,"seconds process time"
 	return result
 
+def work(num):
+		"""worker function"""
+		start_time = timeit.default_timer()
+		print 'worker',num
+		returnList = cacheName
+		# print "computation for getting 100 name",(stopTime-startTime) ,"seconds process time"
+		result = {}
+		for name in returnList[num*10:num*10+10]:
+			result[name] = get_relationship(name)
+		print "computation time for worker ",num,"  ",(timeit.default_timer()-start_time) ,"seconds process time"
+		print result
+		return result
 
+def thread_on_worker(nums,nthreads):
+	#http://eli.thegreenplace.net/2012/01/16/python-parallelizing-cpu-bound-tasks-with-multiprocessing/
+	def worker(nums,outdict):
+		for n in nums:
+			outdict[n] = work(nums)
+	chunksize = int(math.ceil(nums / float(nthreads)))
+	threads = []
+	outs = [{} for i in range(nthreads)]
+	for i in range(nums):
+        # Create each thread, passing it its chunk of numbers to factor
+        # and output dict.
+		t = threading.Thread(
+                target=worker,
+                args=(i,
+                      outs[i]))
+        threads.append(t)
+        t.start()
+	for t in threads:
+		t.join()
 
-def worker(num):
-	"""worker function"""
-	start_time = timeit.default_timer()
-	print 'worker',num
-	returnList = cacheName
-	# print "computation for getting 100 name",(stopTime-startTime) ,"seconds process time"
-	result = {}
-	for name in returnList[num*10:num*10+10]:
-		result[name] = get_relationship(name)
-	print "computation time for worker ",num,"  ",(timeit.default_timer()-start_time) ,"seconds process time"
-	print result
-	return result
+    # Merge all partial output dicts into a single dict and return it
+	return {k: v for out_d in outs for k, v in out_d.iteritems()}
 
   
 
 if __name__ == '__main__':
 	jobs = []
-	for i in range(10):
-		p = multiprocessing.Process(target=worker,args=(i,))
-		jobs.append(p)
-		p.start()	
+	# for i in range(10):
+	# 	p = multiprocessing.Process(target=worker,args=(i,))
+	# 	jobs.append(p)
+	# 	p.start()	
+	print thread_on_worker(10,10)
 # output the dictionary of the person's relationship
 # print get_relationship("justin-bieber")
 # print get_100_popular_celebrities_relationship("http://www.whosdatedwho.com/popular")
