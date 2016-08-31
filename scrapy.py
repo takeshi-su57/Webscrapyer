@@ -61,12 +61,15 @@ def get_100_popular_celebrities(html):
 def get_relationship(name):
 	global NumErr
 	link = defaultUrl+name
-	try:
-		r = requests.get(link)
-		r.raise_for_status()
-	except requests.exceptions.RequestException as e:    # This is the correct syntax
-		NumErr+=1
-		print "return none"
+	# try:
+	r = requests.get(link)
+	r.raise_for_status()
+	if r.status_code == requests.codes.ok:
+		pass
+	else :
+	# except requests.exceptions.RequestException as e:    # This is the correct syntax
+	# 	NumErr+=1
+	# 	print "return none"
 		return None
 	soup = BeautifulSoup(r.text,"html.parser")
 	relations = soup.body.find("p",class_="ff-auto-relationships")
@@ -78,17 +81,27 @@ def get_relationship(name):
 		print relations.prettify()
 
 	item = relations.find("a")
-	try :
-		year = re.findall('\d+', (item.next_sibling.get_text()).encode('utf-8'))
-	except:
-		print name
-	ValueYear = tuple(map(lambda x : int(x),year))
-	resultSet[str(item.get_text())] =  ValueYear
-	while item.find_next_sibling("a") is not None :
-		item = item.find_next_sibling("a")
+	try:
+		relationName = parse_name_inside_link(item["href"]).encode("utf-8")
 		year = re.findall('\d+', (item.next_sibling.get_text()).encode('utf-8'))
 		ValueYear = tuple(map(lambda x : int(x),year))
-		resultSet[str(item.get_text())] = ValueYear
+		resultSet[name] =  ValueYear
+	except AttributeError :
+		# print name
+		# return
+		resultSet[relationName] = None
+	
+	while item.find_next_sibling("a") is not None :
+		item = item.find_next_sibling("a")
+		try:
+			relationName = parse_name_inside_link(item["href"]).encode("utf-8")
+			year = re.findall('\d+', (item.next_sibling.get_text()).encode('utf-8'))
+		except AttributeError :
+			resultSet[relationName] = None
+			continue
+		
+		ValueYear = tuple(map(lambda x : int(x),year))
+		resultSet[relationName] = ValueYear
 	if DEBEG ==1 :
 		print resultSet
 	return resultSet
@@ -128,8 +141,8 @@ def get_100_popular_celebrities_relationship(html):
 	return result
 	
 # output the dictionary of the person's relationship
-
-print get_100_popular_celebrities_relationship("http://www.whosdatedwho.com/popular")
+print get_relationship("bella-pendergast")
+# print get_100_popular_celebrities_relationship("http://www.whosdatedwho.com/popular")
 print NumErr
 # try:
 # 	r = requests.get("http://www.whosdatedwho.com/popular")
