@@ -6,7 +6,8 @@ import pandas as pd
 from bs4 import BeautifulSoup 
 import networkx as nx
 import time
-
+import sys
+NumErr = 0
 DEBEG = 0
 # read the website
 defaultUrl = "http://www.whosdatedwho.com/dating/"
@@ -18,7 +19,7 @@ sampleUrl = ["http://www.whosdatedwho.com/dating/gregg-sulkin","http://www.whosd
 
 testname = "Jake T. Austin"
 p = re.split(r'[;,.\s]\s*',testname)
-print type("-".join(p))
+# print type("-".join(p))
 regex = '<a href="/dating/gregg-sulkin">Gregg Sulkin</a>'
 pattern = re.compile(regex)
 
@@ -28,7 +29,7 @@ pattern = re.compile(regex)
 
 def parse_name_inside_link(link):
 	return link.split("/")[-1]
-print parse_name_inside_link("http://www.whosdatedwho.com/dating/taylor-swift")
+# print parse_name_inside_link("http://www.whosdatedwho.com/dating/taylor-swift")
 
 def get_popular_celerbities(html):
 	link = html
@@ -56,16 +57,31 @@ def get_100_popular_celebrities(html):
 #output object of the person' relationship
 
 # return list of relationship
+
 def get_relationship(name):
+	global NumErr
 	link = defaultUrl+name
-	r = requests.get(link)
+	try:
+		r = requests.get(link)
+		r.raise_for_status()
+	except requests.exceptions.RequestException as e:    # This is the correct syntax
+		NumErr+=1
+		print "return none"
+		return None
 	soup = BeautifulSoup(r.text,"html.parser")
 	relations = soup.body.find("p",class_="ff-auto-relationships")
+	if relations is None :
+		NumErr+=1
+		return None
 	resultSet = {}
 	if DEBEG ==1 :
 		print relations.prettify()
+
 	item = relations.find("a")
-	year = re.findall('\d+', (item.next_sibling.get_text()).encode('utf-8'))
+	try :
+		year = re.findall('\d+', (item.next_sibling.get_text()).encode('utf-8'))
+	except:
+		print name
 	ValueYear = tuple(map(lambda x : int(x),year))
 	resultSet[str(item.get_text())] =  ValueYear
 	while item.find_next_sibling("a") is not None :
@@ -74,8 +90,8 @@ def get_relationship(name):
 		ValueYear = tuple(map(lambda x : int(x),year))
 		resultSet[str(item.get_text())] = ValueYear
 	if DEBEG ==1 :
-		print resultSet	
-
+		print resultSet
+	return resultSet
 
 	# resultSet = []
 	# for e in relations:a[1].next_sibling.get_text()
@@ -92,21 +108,39 @@ def get_relationship(name):
 
 
 	# print resultSet
-	return resultSet
+	
 
+cacheName = get_100_popular_celebrities("http://www.whosdatedwho.com/popular")
 
 def get_100_popular_celebrities_relationship(html):
-	
-	returnList = get_100_popular_celebrities(html)
+	startTime = time.clock()
+	# returnList = get_100_popular_celebrities(html)
+
+	# stopTime = time.clock()
+	returnList = cacheName
+	# print "computation for getting 100 name",(stopTime-startTime) ,"seconds process time"
 	result = {}
-	# for name in returnList:
-	result[returnList[0]] = get_relationship(returnList[0])
+	for name in returnList:
+		result[name] = get_relationship(name)
+	# result[returnList[1]] = get_relationship(returnList[0])
+	stopTime = time.clock()
+	print "computation time is ",(stopTime-startTime) ,"seconds process time"
 	return result
 	
 # output the dictionary of the person's relationship
 
 print get_100_popular_celebrities_relationship("http://www.whosdatedwho.com/popular")
+print NumErr
+# try:
+# 	r = requests.get("http://www.whosdatedwho.com/popular")
+# 	r.raise_for_status()
+# 	print "sucess"
+# 	# if r.status_code == 404 :
 
+# except requests.exceptions.RequestException as e:    # This is the correct syntax
+# 	NumErr+=1
+# 	print e
+# 	sys.exit(1)
 
 
 
