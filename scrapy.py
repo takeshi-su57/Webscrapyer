@@ -7,6 +7,8 @@ from bs4 import BeautifulSoup
 import networkx as nx
 import timeit
 import sys
+import multiprocessing
+
 NumErr = 0
 DEBEG = 0
 # read the website
@@ -62,11 +64,12 @@ def get_relationship(name):
 	global NumErr
 	link = defaultUrl+name
 	# try:
-	start_time = timeit.default_timer()
+	if DEBEG ==1 :
+		start_time = timeit.default_timer()
+		print "computation time is ",(timeit.default_timer() - start_time) ,"seconds process time"
 
 	r = requests.get(link)
 	# r.raise_for_status() 
-	print "computation time is ",(timeit.default_timer() - start_time) ,"seconds process time"
 	if r.status_code == requests.codes.ok:
 		pass
 	else :
@@ -75,8 +78,8 @@ def get_relationship(name):
 	# 	print "return none"
 		return None
 
-
-	start_time = timeit.default_timer()
+	if DEBEG ==1 :
+		start_time = timeit.default_timer()
 
 	soup = BeautifulSoup(r.text,"html.parser")
 	relations = soup.body.find("p",class_="ff-auto-relationships")
@@ -88,11 +91,18 @@ def get_relationship(name):
 		print relations.prettify()
 	######version2
 	for item in relations.find_all("a"):
+
+
 		relationName = parse_name_inside_link(item["href"]).encode("utf-8")
-		year = re.findall('\d+', (item.next_sibling.get_text()).encode('utf-8'))
+		try :
+			year = re.findall('\d+', (item.next_sibling.get_text()).encode('utf-8'))
+		except AttributeError:
+			resultSet[relationName] = None
+			continue
 		ValueYear = tuple(map(lambda x : int(x),year))
 		resultSet[relationName] =  ValueYear
-	print "computation time is ",(timeit.default_timer() - start_time) ,"seconds process time"
+	if DEBEG ==1 :
+		print "computation time is ",(timeit.default_timer() - start_time) ,"seconds process time"
 
 	######version1 
 	# item = relations.find("a")
@@ -141,24 +151,46 @@ def get_relationship(name):
 cacheName = get_100_popular_celebrities("http://www.whosdatedwho.com/popular")
 
 def get_100_popular_celebrities_relationship(html):
-	startTime = time.clock()
+	start_time = timeit.default_timer()
 	# returnList = get_100_popular_celebrities(html)
 
 	# stopTime = time.clock()
 	returnList = cacheName
 	# print "computation for getting 100 name",(stopTime-startTime) ,"seconds process time"
 	result = {}
-	for name in returnList:
+	for name in returnList[0:10]:
 		result[name] = get_relationship(name)
 	# result[returnList[1]] = get_relationship(returnList[0])
-	stopTime = time.clock()
-	print "computation time is ",(stopTime-startTime) ,"seconds process time"
+	print "computation time is ",(timeit.default_timer()-start_time) ,"seconds process time"
 	return result
-	
+
+
+
+def worker(num):
+	"""worker function"""
+	start_time = timeit.default_timer()
+	print 'worker',num
+	returnList = cacheName
+	# print "computation for getting 100 name",(stopTime-startTime) ,"seconds process time"
+	result = {}
+	for name in returnList[num*10:num*10+10]:
+		result[name] = get_relationship(name)
+	print "computation time for worker ",num,"  ",(timeit.default_timer()-start_time) ,"seconds process time"
+	print result
+	return result
+
+  
+
+if __name__ == '__main__':
+	jobs = []
+	for i in range(10):
+		p = multiprocessing.Process(target=worker,args=(i,))
+		jobs.append(p)
+		p.start()	
 # output the dictionary of the person's relationship
-print get_relationship("justin-bieber")
+# print get_relationship("justin-bieber")
 # print get_100_popular_celebrities_relationship("http://www.whosdatedwho.com/popular")
-print NumErr
+# print NumErr
 # try:
 # 	r = requests.get("http://www.whosdatedwho.com/popular")
 # 	r.raise_for_status()
