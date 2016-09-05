@@ -10,6 +10,10 @@ import sys
 import multiprocessing
 import threading
 import math
+import os
+import Queue
+import time
+import logging
 
 NumErr = 0
 DEBEG = 0
@@ -173,44 +177,54 @@ def work(num):
 		returnList = cacheName
 		# print "computation for getting 100 name",(stopTime-startTime) ,"seconds process time"
 		result = {}
-		for name in returnList[num*10:num*10+10]:
+		for name in returnList[num*10:(num*10+10)]:
 			result[name] = get_relationship(name)
 		print "computation time for worker ",num,"  ",(timeit.default_timer()-start_time) ,"seconds process time"
-		print result
+		# print result
 		return result
 
+
 def thread_on_worker(nums,nthreads):
-	#http://eli.thegreenplace.net/2012/01/16/python-parallelizing-cpu-bound-tasks-with-multiprocessing/
-	def worker(nums,outdict):
-		for n in nums:
-			outdict[n] = work(nums)
-	chunksize = int(math.ceil(nums / float(nthreads)))
+
+	def worker(num,outdict):
+	# http://eli.thegreenplace.net/2012/01/16/python-parallelizing-cpu-bound-tasks-with-multiprocessing/
+		outdict[num] = work(num)
+
+		print 'Worker: %s' % num
+    	# return
+
 	threads = []
 	outs = [{} for i in range(nthreads)]
+
 	for i in range(nums):
-        # Create each thread, passing it its chunk of numbers to factor
-        # and output dict.
-		t = threading.Thread(
-                target=worker,
-                args=(i,
-                      outs[i]))
-        threads.append(t)
-        t.start()
+	    t = threading.Thread(target=worker, args=(i,outs))
+	    threads.append(t)
+	    t.start()
 	for t in threads:
 		t.join()
-
-    # Merge all partial output dicts into a single dict and return it
-	return {k: v for out_d in outs for k, v in out_d.iteritems()}
-
-  
+	# print "dict len",len(outs)
+	return outs
 
 if __name__ == '__main__':
-	jobs = []
+
+	# test()
+
+	# jobs = []
 	# for i in range(10):
 	# 	p = multiprocessing.Process(target=worker,args=(i,))
 	# 	jobs.append(p)
 	# 	p.start()	
-	print thread_on_worker(10,10)
+	out = thread_on_worker(10,10)
+	print out[5]
+	# main(cacheName)
+	# threads = []
+	# for i in range(5):
+	# 	t = threading.Thread(target=worker, args=(i,))
+	# 	threads.append(t)
+	# 	t.start()
+	# print "threadlist",threads
+
+	# 
 # output the dictionary of the person's relationship
 # print get_relationship("justin-bieber")
 # print get_100_popular_celebrities_relationship("http://www.whosdatedwho.com/popular")

@@ -12,3 +12,11 @@
  
 
 
+getting the virtual environment
+'''
+ source test/bin/activate
+'''
+
+'''
+python scrapy.py
+'''
