@@ -65,11 +65,6 @@ def get_100_popular_celebrities(html):
 		returnList+=get_popular_celerbities(html+subfix)
 	return returnList
 
-#input name of the person 
-
-#output object of the person' relationship
-
-# return list of relationship
 
 def get_relationship(name):
 	global NumErr
@@ -84,9 +79,6 @@ def get_relationship(name):
 	if r.status_code == requests.codes.ok:
 		pass
 	else :
-	# except requests.exceptions.RequestException as e:    # This is the correct syntax
-	# 	NumErr+=1
-	# 	print "return none"
 		return None
 
 	if DEBEG ==1 :
@@ -141,37 +133,16 @@ def get_relationship(name):
 	if DEBEG ==1 :
 		print resultSet
 	return resultSet
-
-	# resultSet = []
-	# for e in relations:a[1].next_sibling.get_text()
-	# 	resultSet[e.a.get_text()] = {}
-	# for k in relations[0].find_all("a")[1:]:
-	# 	name = k.get_text().split()
-		# print "http://www.whosdatedwho.com/dating/"+name[0]+"-"+name[1]
-	# parse name to format xxx-x-xxx
-	# for k in relations.a[:]:
-	# 	p = re.split(r'[;,.\s]\s*',k.get_text())
-	# 	name = "-".join(p)
-	# 	resultSet.append({"name": name})
-
-
-
-	# print resultSet
 	
 
 cacheName = get_100_popular_celebrities("http://www.whosdatedwho.com/popular")
 
 def get_100_popular_celebrities_relationship(html):
 	start_time = timeit.default_timer()
-	# returnList = get_100_popular_celebrities(html)
-
-	# stopTime = time.clock()
 	returnList = cacheName
-	# print "computation for getting 100 name",(stopTime-startTime) ,"seconds process time"
 	result = {}
 	for name in returnList[0:10]:
 		result[name] = get_relationship(name)
-	# result[returnList[1]] = get_relationship(returnList[0])
 	print "computation time is ",(timeit.default_timer()-start_time) ,"seconds process time"
 	return result
 
@@ -180,12 +151,10 @@ def work(num):
 		start_time = timeit.default_timer()
 		print 'worker',num
 		returnList = cacheName
-		# print "computation for getting 100 name",(stopTime-startTime) ,"seconds process time"
 		result = {}
 		for name in returnList[num*10:(num*10+10)]:
 			result[name] = get_relationship(name)
 		print "computation time for worker ",num,"  ",(timeit.default_timer()-start_time) ,"seconds process time"
-		# print result
 		return result
 
 
@@ -207,7 +176,6 @@ def thread_on_worker(nums,nthreads):
 	    t.start()
 	for t in threads:
 		t.join()
-	# print "dict len",len(outs)
 	return outs
 
 if __name__ == '__main__':
@@ -221,29 +189,6 @@ if __name__ == '__main__':
 	# 	p.start()	
 	out = thread_on_worker(10,10)
 	print out[5]
-	# main(cacheName)
-	# threads = []
-	# for i in range(5):
-	# 	t = threading.Thread(target=worker, args=(i,))
-	# 	threads.append(t)
-	# 	t.start()
-	# print "threadlist",threads
-
-	# 
-# output the dictionary of the person's relationship
-# print get_relationship("justin-bieber")
-# print get_100_popular_celebrities_relationship("http://www.whosdatedwho.com/popular")
-# print NumErr
-# try:
-# 	r = requests.get("http://www.whosdatedwho.com/popular")
-# 	r.raise_for_status()
-# 	print "sucess"
-# 	# if r.status_code == 404 :
-
-# except requests.exceptions.RequestException as e:    # This is the correct syntax
-# 	NumErr+=1
-# 	print e
-# 	sys.exit(1)
 
 
 
@@ -252,32 +197,16 @@ if DEBEG is 1:
 	result = {}
 	result["bella-thorne"] = get_relationship("bella-thorne")
 	print "hello"
-# result["Britt-Robertson"] = temp
-# for i in temp:
-# 	print i 
-# 	result["Britt-Robertson"][str(i)] = get_relationship(i)
 	print result
 def get_relavant_relation(html):
-	# dom = web.Element(html)
-	### 0. get the website
-	### 1. get the relation
-	# print dom.by_tag
 	r = requests.get(html)
 	soup = BeautifulSoup(r.text,"html.parser")
 
-	# bs.find_all("div",class= "ff-current-relationship.ff-has-readmore")
-	# print bsText.findall
-	# cssSoup = bs("<div class = ff-current-relationship.ff-has-readmore>")
-	# print soup.find_all("div")
-	### get the css soup
 	relations = soup.body.find_all("p",class_="ff-auto-relationships")
 	print type(relations)
 	print "####\n"
 
-	### get the name of the relations
 	resultSet = {}
-	# for e in relations:
-	# 	resultSet[e.a.get_text()] = {}
 	for k in relations[0].find_all("a")[1:]:
 		name = k.get_text().split()
 		print "http://www.whosdatedwho.com/dating/"+name[0]+"-"+name[1]
@@ -285,25 +214,7 @@ def get_relavant_relation(html):
 
 	print resultSet
 	return resultSet
-	### output to json format
 		
-
-	# relation = []
-	# return relation
 
 if DEBEG is 1:
 	print get_relavant_relation("http://www.whosdatedwho.com/dating/Britt-Robertson")
-
-
-#https://github.com/cs109/content/blob/master/HW5_solutions.ipynb
-
-# parse the relavent content
-# for i in range(0,2):
-# 	htmlfile = urllib.urlopen(sampleUrl[i])
-# 	htmltext = htmlfile.read()
-# 	# titles = re.findall(pattern,htmltext)
-# 	print htmltext
-# structure data in dictionary format
-
-
-# print htmltext
