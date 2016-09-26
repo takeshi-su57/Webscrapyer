@@ -3,7 +3,7 @@ This is a web scrapyer for http://www.whosdatedwho.com/
 current implemented feature 
 * scrapy top 100 celebrities from [who is dating who](https://facebook.github.io/relay/docs/getting-started.html)
 * 10 working thread to request from the website 
-* 10 working thread to request from the website 
+* implemented timer to test scrapy speed
 
 todo feature 
 * display it as graph and edge 
