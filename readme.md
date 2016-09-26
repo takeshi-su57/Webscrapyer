@@ -1,22 +1,26 @@
-###  to do list
+This is a web scrapyer for http://www.whosdatedwho.com/
 
+current implemented feature 
+* scrapy top 100 celebrities from [who is dating who](https://facebook.github.io/relay/docs/getting-started.html)
+* 10 working thread to request from the website 
+* 10 working thread to request from the website 
 
-1 .scrapy data from website !http://www.whosdatedwho.com/
-2. structure data in key value(dict) format
-
-'''
-{'bella-thorne': [{'name': u'Gregg Sulkin', 'year': u' (2015 - 2016)'}, {'name': u'Ryan Nassif', 'year': u' (2015)'}, {'name': u'Brandon Thomas Lee', 'year': u' (2015)'}, {'name': u'Tristan Klier', 'year': u' (2012 - 2014)'}, {'name': u'Cody Simpson', 'year': u' (2011)'}, {'name': u'Garrett Backstrom', 'year': u' (2010 - 2011)'}, {'name': u'Jake T. Austin', 'year': u' (2010)'}]}
-'''
-
-3. display it as graph and edge 
- 
-
+todo feature 
+* display it as graph and edge 
 
 getting the virtual environment
-'''
- source test/bin/activate
-'''
+```
+source test/bin/activate
+```
 
-'''
+```
 python scrapy.py
-'''
+```
+
+
+
+#### current output format 
+```
+{'bella-thorne': [{'name': u'Gregg Sulkin', 'year': u' (2015 - 2016)'}, {'name': u'Ryan Nassif', 'year': u' (2015)'}, {'name': u'Brandon Thomas Lee', 'year': u' (2015)'}, {'name': u'Tristan Klier', 'year': u' (2012 - 2014)'}, {'name': u'Cody Simpson', 'year': u' (2011)'}, {'name': u'Garrett Backstrom', 'year': u' (2010 - 2011)'}, {'name': u'Jake T. Austin', 'year': u' (2010)'}]}
+```
+## MIT License

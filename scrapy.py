@@ -1,3 +1,8 @@
+
+#####
+# YourName .~= ruichao zhang  =~.
+###
+
 import urllib
 import re
 import requests
@@ -291,12 +296,6 @@ if DEBEG is 1:
 
 
 #https://github.com/cs109/content/blob/master/HW5_solutions.ipynb
-def _color(s):
-    if '(R' in s:
-        return 'r'
-    if '(D' in s:
-        return 'b'
-    return 'k'
 
 # parse the relavent content
 # for i in range(0,2):
